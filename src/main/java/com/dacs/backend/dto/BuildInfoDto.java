@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BuildInfoDTO {
+public class BuildInfoDto {
 	String applicationName;
 	String version;
 	String lastBuild;

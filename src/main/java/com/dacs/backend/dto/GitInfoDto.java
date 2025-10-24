@@ -8,7 +8,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-public class GitInfoDTO {
+public class GitInfoDto {
 
 	@JsonProperty("git.branch")
 	String branch;
