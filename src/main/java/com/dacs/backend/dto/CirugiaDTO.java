@@ -12,6 +12,7 @@ public class CirugiaDTO {
     private LocalDateTime fecha_hora_inicio;
     private String estado;
     private String anestesia;
+    private String tipo;
 
     // Referencias a entidades relacionadas como solo IDs
     private Long pacienteId;

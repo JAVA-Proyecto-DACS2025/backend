@@ -1,5 +1,6 @@
 package com.dacs.backend.service;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +41,17 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
-    public java.util.List<Paciente> find(java.util.Map<String, Object> filter) {
+    public java.util.List<Paciente> find(Map<String, Object> filter) {
         throw new UnsupportedOperationException();
     }
     
     @Override
-    public Paciente getBy(java.util.Map<String, Object> filter) {
+    public Paciente getBy(Map<String, Object> filter) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public java.util.List<Paciente> getByDni(String dni) {
+        return pacienteRepository.findByDni(dni);
     }
 }

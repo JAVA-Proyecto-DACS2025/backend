@@ -34,6 +34,9 @@ public class Cirugia {
     @Column(nullable = false)   
     private String anestesia;
 
+    @Column(nullable = false)   
+    private String tipo;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
