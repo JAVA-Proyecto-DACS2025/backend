@@ -25,9 +25,7 @@ public class CirugiaController {
 
     @PostMapping("")
     public CirugiaDTO postMethodName(@RequestBody CirugiaDTO cirugiaDTO) {
-        System.out.println(cirugiaDTO);
         com.dacs.backend.model.entity.Cirugia toSave = modelMapper.map(cirugiaDTO, com.dacs.backend.model.entity.Cirugia.class);
-        System.out.println(toSave);
         com.dacs.backend.model.entity.Cirugia saved = cirugiaService.save(toSave);
         cirugiaDTO.setId(saved.getId());
         return cirugiaDTO;
