@@ -6,7 +6,11 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.dacs.backend.dto.CirugiaRequestDto;
+import com.dacs.backend.dto.CirugiaResponseDTO;
+import com.dacs.backend.mapper.CirugiaMapper;
 import com.dacs.backend.model.entity.Cirugia;
 import com.dacs.backend.model.repository.CirugiaRepository;
 
@@ -15,9 +19,22 @@ public class CirugiaServiceImpl implements CirugiaService {
 
     @Autowired
     CirugiaRepository cirugiaRepository;
+    @Autowired
+    private CirugiaMapper cirugiaMapper;
+
     @Override
     public Optional<Cirugia> getById(Long id) {
         return cirugiaRepository.findById(id);
+    }
+
+    @Override
+    @Transactional
+    public CirugiaResponseDTO create(CirugiaRequestDto request) {
+        // mapear request -> entidad (resuelve relaciones dentro del mapper)
+        Cirugia entity = cirugiaMapper.toEntity(request);
+        Cirugia saved = cirugiaRepository.save(entity);
+        // mapear entidad -> response DTO
+        return cirugiaMapper.toResponseDto(saved);
     }
 
     @Override
@@ -42,8 +59,7 @@ public class CirugiaServiceImpl implements CirugiaService {
     }
 
     @Override
-    public List<Cirugia> find(java.util.Map<String, Object> filter
-    ) {
+    public List<Cirugia> find(java.util.Map<String, Object> filter) {
         throw new UnsupportedOperationException();
     }
 

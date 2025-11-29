@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class CirugiaDTO {
+public class CirugiaResponseDTO {
 
     private Long id;
     private String servicio;
@@ -13,8 +13,6 @@ public class CirugiaDTO {
     private String estado;
     private String anestesia;
     private String tipo;
-
-    // Referencias a entidades relacionadas como solo IDs
-    private Long pacienteId;
-    private Long quirofanoId;
+    private PacienteDTO paciente;
+    private QuirofanoDto quirofano;
 }

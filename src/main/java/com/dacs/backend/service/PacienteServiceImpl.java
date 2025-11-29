@@ -2,10 +2,12 @@ package com.dacs.backend.service;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dacs.backend.dto.PacienteDTO;
 import com.dacs.backend.model.entity.Paciente;
 import com.dacs.backend.model.repository.PacienteRepository;
 
@@ -30,7 +32,7 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
-    public java.util.List<Paciente> getAll() {
+    public List<Paciente> getAll() {
         return pacienteRepository.findAll();
     }
 
@@ -41,7 +43,7 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
-    public java.util.List<Paciente> find(Map<String, Object> filter) {
+    public List<Paciente> find(Map<String, Object> filter) {
         throw new UnsupportedOperationException();
     }
     
@@ -51,7 +53,24 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
-    public java.util.List<Paciente> getByDni(String dni) {
+    public List<Paciente> getByDni(String dni) {
         return pacienteRepository.findByDni(dni);
+    }
+
+    @Override
+    public List<PacienteDTO> getPacientesByIds(List<Long> ids) {
+        List<Paciente> pacientes = pacienteRepository.findAllById(ids);
+        List<PacienteDTO> pacientesDTO = pacientes.stream().map(p -> {
+            PacienteDTO dto = new PacienteDTO();
+            dto.setId(p.getId());
+            dto.setNombre(p.getNombre());
+            dto.setDni(p.getDni());
+            dto.setEdad((p.getEdad()));
+            dto.setTelefono(p.getTelefono());
+            dto.setPeso(p.getPeso());
+            dto.setDireccion(p.getDireccion());    
+            return dto;
+        }).toList();
+        return pacientesDTO;
     }
 }

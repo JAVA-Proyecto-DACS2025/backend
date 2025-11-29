@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dacs.backend.dto.QuirofanoDTO;
+import com.dacs.backend.dto.QuirofanoDto;
 import com.dacs.backend.model.entity.Quirofano;
 import com.dacs.backend.service.QuirofanoService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,9 +25,9 @@ public class QuirofanoController {
     private ModelMapper modelMapper;
 
     @PostMapping("")
-    public ResponseEntity<QuirofanoDTO> postMethodName(@RequestBody QuirofanoDTO QuirofanoDTO) {
-        Quirofano quirofano = modelMapper.map(QuirofanoDTO, Quirofano.class);
-        QuirofanoDTO data = modelMapper.map(quirofanoService.save(quirofano), QuirofanoDTO.class);
-        return new ResponseEntity<QuirofanoDTO>(data, HttpStatus.OK);
+    public ResponseEntity<QuirofanoDto> postMethodName(@RequestBody QuirofanoDto quirofanoDto) {
+        Quirofano quirofano = modelMapper.map(quirofanoDto, Quirofano.class);
+        QuirofanoDto data = modelMapper.map(quirofanoService.save(quirofano), QuirofanoDto.class);
+        return new ResponseEntity<QuirofanoDto>(data, HttpStatus.OK);
     }
 }
