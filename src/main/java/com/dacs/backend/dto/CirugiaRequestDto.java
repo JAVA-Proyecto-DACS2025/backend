@@ -12,8 +12,8 @@ public class CirugiaRequestDto {
     private String estado;
     private String anestesia;
     private String tipo;
-    private Long pacienteId;
-    private Long quirofanoId;
+    private Long paciente;
+    private Long quirofano;
 }
 
 class CirugiaUpdateDTO extends CirugiaRequestDto {

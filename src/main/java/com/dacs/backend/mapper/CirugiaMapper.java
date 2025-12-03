@@ -37,14 +37,14 @@ public class CirugiaMapper {
         entity.setTipo(dto.getTipo());
 
         // resolver relaciones por id (si vienen)
-        if (dto.getPacienteId() != null) {
-            Paciente p = pacienteRepository.findById(dto.getPacienteId())
-                    .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado id=" + dto.getPacienteId()));
+        if (dto.getPaciente() != null) {
+            Paciente p = pacienteRepository.findById(dto.getPaciente())
+                    .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado id=" + dto.getPaciente()));
             entity.setPaciente(p);
         }
-        if (dto.getQuirofanoId() != null) {
-            Quirofano q = quirofanoRepository.findById(dto.getQuirofanoId())
-                    .orElseThrow(() -> new IllegalArgumentException("Quirofano no encontrado id=" + dto.getQuirofanoId()));
+        if (dto.getQuirofano() != null) {
+            Quirofano q = quirofanoRepository.findById(dto.getQuirofano())
+                    .orElseThrow(() -> new IllegalArgumentException("Quirofano no encontrado id=" + dto.getQuirofano()));
             entity.setQuirofano(q);
         }
         return entity;
