@@ -139,7 +139,11 @@ public class CirugiaServiceImpl implements CirugiaService {
 
     @Override
     @Transactional
-    public List<MiembroEquipoMedicoDto> createEquipoMedico(Long cirugiaId, List<MiembroEquipoMedicoDto.Create> req) {
+    public List<MiembroEquipoMedicoDto> saveEquipoMedico(Long cirugiaId, List<MiembroEquipoMedicoDto.Create> req) {
+        // si la intención es reemplazar el equipo, eliminar los existentes primero
+        equipoMedicoRepository.deleteByCirugiaId(cirugiaId);
+
+        // ahora seguimos construyendo y guardando los nuevos miembros (igual que antes)
         // validar existencia de la cirugía
         Cirugia cirugia = cirugiaRepository.findById(cirugiaId)
                 .orElseThrow(() -> new IllegalArgumentException("Cirugia no encontrada id=" + cirugiaId));

@@ -12,7 +12,7 @@ import com.dacs.backend.dto.MiembroEquipoMedicoDto;
 public interface CirugiaService extends CommonService<Cirugia> {
     CirugiaResponseDTO create(CirugiaRequestDto request);
 
-    List<MiembroEquipoMedicoDto> createEquipoMedico(Long id, List<MiembroEquipoMedicoDto.Create> entity);
+    List<MiembroEquipoMedicoDto> saveEquipoMedico(Long id, List<MiembroEquipoMedicoDto.Create> entity);
 
     List<MiembroEquipoMedicoDto> getEquipoMedico(Long cirugiaId);
 

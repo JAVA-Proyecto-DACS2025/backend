@@ -139,7 +139,7 @@ public class CirugiaController {
     @PostMapping("/{id}/equipo-medico")
     public ResponseEntity<List<MiembroEquipoMedicoDto>> postEquipoMedico(@PathVariable Long id, @RequestBody List<MiembroEquipoMedicoDto.Create> entityEquipoMedico) {
 
-        List<MiembroEquipoMedicoDto> resp = cirugiaService.createEquipoMedico(id, entityEquipoMedico);
+        List<MiembroEquipoMedicoDto> resp = cirugiaService.saveEquipoMedico(id, entityEquipoMedico);
         return ResponseEntity.status((HttpStatus.CREATED)).body(resp);
     }
 
