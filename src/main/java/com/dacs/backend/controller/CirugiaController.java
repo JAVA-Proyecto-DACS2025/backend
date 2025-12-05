@@ -3,9 +3,8 @@ package com.dacs.backend.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dacs.backend.dto.CirugiaResponseDTO;
 import com.dacs.backend.dto.MiembroEquipoMedicoDto;
-import com.dacs.backend.dto.CirugiaRequestDto;
+import com.dacs.backend.dto.CirugiaDTO;
 import com.dacs.backend.dto.PacienteDTO;
 import com.dacs.backend.service.CirugiaService;
 
@@ -26,8 +25,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.dacs.backend.dto.PageResponse;
+import com.dacs.backend.dto.CirugiaDTO.Response;
 import com.dacs.backend.model.entity.Cirugia;
-import com.dacs.backend.model.entity.EquipoMedico;
+import com.dacs.backend.model.entity.Paciente;
+import com.dacs.backend.model.repository.CirugiaRepository;
+import com.dacs.backend.model.repository.PacienteRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -47,13 +49,13 @@ public class CirugiaController {
     private ModelMapper modelMapper;
 
     @Autowired
-    private com.dacs.backend.model.repository.CirugiaRepository cirugiaRepository;
+    private CirugiaRepository cirugiaRepository;
 
     @Autowired
-    private com.dacs.backend.model.repository.PacienteRepository pacienteRepository;
+    private PacienteRepository pacienteRepository;
 
     @GetMapping("")
-    public PageResponse<CirugiaResponseDTO> list(
+    public PageResponse<CirugiaDTO.Response> list(
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "16") int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -61,8 +63,8 @@ public class CirugiaController {
 
         // Map entities -> DTOs (without paciente yet)
         List<Cirugia> entidades = p.getContent();
-        List<CirugiaResponseDTO> dtos = entidades.stream()
-                .map(e -> modelMapper.map(e, CirugiaResponseDTO.class))
+        List<CirugiaDTO.Response> dtos = entidades.stream()
+                .map(e -> modelMapper.map(e, CirugiaDTO.Response.class))
                 .collect(Collectors.toList());
 
         // Recolectar pacienteIds de las cirugías
@@ -76,9 +78,9 @@ public class CirugiaController {
 
         if (!pacienteIds.isEmpty()) {
             // Cargar pacientes en batch y mapear a DTOs
-            List<com.dacs.backend.model.entity.Paciente> pacientes = pacienteRepository.findAllById(pacienteIds);
-            Map<Long, com.dacs.backend.model.entity.Paciente> pacientesMap = pacientes.stream()
-                    .collect(Collectors.toMap(com.dacs.backend.model.entity.Paciente::getId, pc -> pc));
+            List<Paciente> pacientes = pacienteRepository.findAllById(pacienteIds);
+            Map<Long, Paciente> pacientesMap = pacientes.stream()
+                    .collect(Collectors.toMap(Paciente::getId, pc -> pc));
 
             for (int i = 0; i < entidades.size(); i++) {
                 var entidad = entidades.get(i);
@@ -93,7 +95,7 @@ public class CirugiaController {
             }
         }
 
-        PageResponse<CirugiaResponseDTO> resp = new PageResponse<>();
+        PageResponse<CirugiaDTO.Response> resp = new PageResponse<>();
         resp.setContent(dtos);
         resp.setNumber(p.getNumber());
         resp.setSize(p.getSize());
@@ -103,43 +105,43 @@ public class CirugiaController {
     }
 
     @PostMapping("")
-    public CirugiaResponseDTO save(@RequestBody CirugiaRequestDto cirugiaRequestDto) {
+    public CirugiaDTO.Response create(@RequestBody CirugiaDTO.Create cirugiaRequestDto) {
         // delegar al servicio que resuelve relaciones y retorna el DTO de respuesta
         return cirugiaService.create(cirugiaRequestDto);
     }
 
     @PutMapping("/{id}")
-    public CirugiaResponseDTO update(@PathVariable String id, @RequestBody CirugiaRequestDto cirugiaDto) {
+    public CirugiaDTO.Response update(@PathVariable String id, @RequestBody CirugiaDTO.Update cirugiaDto) {
         Cirugia entity = cirugiaService.getById(Long.parseLong(id))
                 .orElseThrow(() -> new RuntimeException("Cirugia no encontrada"));
         modelMapper.map(cirugiaDto, entity);
         cirugiaService.save(entity);
 
-        return modelMapper.map(entity, CirugiaResponseDTO.class);
+        return modelMapper.map(entity, CirugiaDTO.Response.class);
     }
 
     @DeleteMapping("/{id}")
-    public CirugiaResponseDTO delete(@PathVariable Long id) throws Exception {
+    public ResponseEntity<Object> delete(@PathVariable Long id) throws Exception {
         java.util.Optional<Cirugia> cirugia = cirugiaService.getById(id);
         if (cirugia.isPresent()) {
             cirugiaService.delete(id);
-            return modelMapper.map(cirugia.get(), CirugiaResponseDTO.class);
+            return ResponseEntity.ok().build();
         } else {
             throw new Exception("Cirugia no encontrada");
         }
     }
 
     @GetMapping("/{id}/equipo-medico")
-    public ResponseEntity<List<MiembroEquipoMedicoDto>> getEquipoMedico(@PathVariable Long id) {
+    public ResponseEntity<List<MiembroEquipoMedicoDto.Response>> getEquipoMedico(@PathVariable Long id) {
 
-        List<MiembroEquipoMedicoDto> EquipoEntity = cirugiaService.getEquipoMedico(id);
+        List<MiembroEquipoMedicoDto.Response> EquipoEntity = cirugiaService.getEquipoMedico(id);
         return ResponseEntity.ok(EquipoEntity);    
     }
 
     @PostMapping("/{id}/equipo-medico")
-    public ResponseEntity<List<MiembroEquipoMedicoDto>> postEquipoMedico(@PathVariable Long id, @RequestBody List<MiembroEquipoMedicoDto.Create> entityEquipoMedico) {
+    public ResponseEntity<List<MiembroEquipoMedicoDto.Response>> postEquipoMedico(@PathVariable Long id, @RequestBody List<MiembroEquipoMedicoDto.Create> entityEquipoMedico) {
 
-        List<MiembroEquipoMedicoDto> resp = cirugiaService.saveEquipoMedico(id, entityEquipoMedico);
+        List<MiembroEquipoMedicoDto.Response> resp = cirugiaService.saveEquipoMedico(id, entityEquipoMedico);
         return ResponseEntity.status((HttpStatus.CREATED)).body(resp);
     }
 

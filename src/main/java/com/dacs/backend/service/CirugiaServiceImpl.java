@@ -3,29 +3,31 @@ package com.dacs.backend.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.dacs.backend.dto.CirugiaRequestDto;
-import com.dacs.backend.dto.CirugiaResponseDTO;
+import com.dacs.backend.dto.CirugiaDTO;
 import com.dacs.backend.dto.MiembroEquipoMedicoDto;
+import com.dacs.backend.dto.PacienteDTO;
+import com.dacs.backend.dto.PageResponse;
 import com.dacs.backend.dto.PersonalDto;
 import com.dacs.backend.mapper.CirugiaMapper;
 import com.dacs.backend.model.entity.Cirugia;
 import com.dacs.backend.model.entity.EquipoMedico;
 import com.dacs.backend.model.entity.Personal;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
 import com.dacs.backend.model.repository.CirugiaRepository;
 import com.dacs.backend.model.repository.EquipoMedicoRepository;
+import com.dacs.backend.model.repository.PacienteRepository;
 import com.dacs.backend.model.repository.PersonalRepository;
 
 
@@ -41,6 +43,10 @@ public class CirugiaServiceImpl implements CirugiaService {
     private EquipoMedicoRepository equipoMedicoRepository;
     @Autowired
     private PersonalRepository personalRepository;
+
+    @Autowired
+    private PacienteRepository pacienteRepository;
+    
     @Autowired
     private ModelMapper modelMapper;
 
@@ -51,7 +57,7 @@ public class CirugiaServiceImpl implements CirugiaService {
 
     @Override
     @Transactional
-    public CirugiaResponseDTO create(CirugiaRequestDto request) {
+    public CirugiaDTO.Response create(CirugiaDTO.Create request) {
         // mapear request -> entidad (resuelve relaciones dentro del mapper)
         Cirugia entity = cirugiaMapper.toEntity(request);
         Cirugia saved = cirugiaRepository.save(entity);
@@ -64,7 +70,7 @@ public class CirugiaServiceImpl implements CirugiaService {
         return cirugiaRepository.save(entity);
     }
 
-    @Override
+    @Override   
     public Boolean existById(Long id) {
         return cirugiaRepository.existsById(id);
     }
@@ -90,15 +96,8 @@ public class CirugiaServiceImpl implements CirugiaService {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    // public MiembroEquipoMedicoDto saveEquipoMedico(Long id, MiembroEquipoMedicoDto entity) {
-    //     EquipoMedico equipoMedico = modelMapper.map(entity, EquipoMedico.class);
-    //     EquipoMedico saved = equipoMedicoRepository.save(equipoMedico);
-    //     return modelMapper.map(saved, MiembroEquipoMedicoDto.class);
-    // }
-
     @Override
-    public List<MiembroEquipoMedicoDto> getEquipoMedico(Long cirugiaId) {
+    public List<MiembroEquipoMedicoDto.Response> getEquipoMedico(Long cirugiaId) {
         List<EquipoMedico> equipo = equipoMedicoRepository.findByCirugiaId(cirugiaId);
 
         List<Long> personalIds = equipo.stream()
@@ -118,7 +117,7 @@ public class CirugiaServiceImpl implements CirugiaService {
 
         return equipo.stream().map(e -> {
             // mapear de forma explícita igual que en createEquipoMedico
-            MiembroEquipoMedicoDto dto = modelMapper.map(e, MiembroEquipoMedicoDto.class);
+            MiembroEquipoMedicoDto.Response dto = modelMapper.map(e, MiembroEquipoMedicoDto.Response.class);
 
             // asegurar campos clave
             dto.setRol(e.getRol());
@@ -128,7 +127,7 @@ public class CirugiaServiceImpl implements CirugiaService {
             // rellenar info del personal a partir del personalMap (evita N+1)
             Personal p = (e.getPersonal() != null) ? personalMap.get(e.getPersonal().getId()) : null;
             if (p != null) {
-                PersonalDto pDto = modelMapper.map(p, PersonalDto.class);
+                PersonalDto.Response pDto = modelMapper.map(p, PersonalDto.Response.class);
                 dto.setPersonal(pDto);
             } else {
                 dto.setPersonal(null);
@@ -139,7 +138,7 @@ public class CirugiaServiceImpl implements CirugiaService {
 
     @Override
     @Transactional
-    public List<MiembroEquipoMedicoDto> saveEquipoMedico(Long cirugiaId, List<MiembroEquipoMedicoDto.Create> req) {
+    public List<MiembroEquipoMedicoDto.Response> saveEquipoMedico(Long cirugiaId, List<MiembroEquipoMedicoDto.Create> req) {
         // si la intención es reemplazar el equipo, eliminar los existentes primero
         equipoMedicoRepository.deleteByCirugiaId(cirugiaId);
 
@@ -193,7 +192,7 @@ public class CirugiaServiceImpl implements CirugiaService {
         // opcional: equipoMedicoRepository.flush(); // si tu repo extiende JpaRepository y quieres asegurar flush
 
         return saved.stream().map(e -> {
-            MiembroEquipoMedicoDto dto = modelMapper.map(e, MiembroEquipoMedicoDto.class);
+            MiembroEquipoMedicoDto.Response dto = modelMapper.map(e, MiembroEquipoMedicoDto.Response.class);
             // asegurar campos explícitos
             dto.setRol(e.getRol());
             if (e.getCirugia() != null) dto.setCirugiaId(e.getCirugia().getId());
@@ -202,10 +201,55 @@ public class CirugiaServiceImpl implements CirugiaService {
             // agregar info del personal (objeto) usando personalMap
             Personal p = e.getPersonal();
             if (p != null) {
-                PersonalDto pDto = modelMapper.map(p, PersonalDto.class);
+                PersonalDto.Response pDto = modelMapper.map(p, PersonalDto.Response.class);
                 dto.setPersonal(pDto);
             }
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public PageResponse<CirugiaDTO.Response> get(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Cirugia> p = cirugiaRepository.findAll(pageable);
+
+        List<Cirugia> entidades = p.getContent();
+        List<CirugiaDTO.Response> dtos = entidades.stream()
+                .map(e -> modelMapper.map(e, CirugiaDTO.Response.class))
+                .collect(Collectors.toList());
+
+        List<Long> pacienteIds = entidades.stream()
+                .map(Cirugia::getPaciente)
+                .filter(Objects::nonNull)
+                .map(ent -> ent.getId())
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (!pacienteIds.isEmpty()) {
+            List<com.dacs.backend.model.entity.Paciente> pacientes = pacienteRepository.findAllById(pacienteIds);
+            Map<Long, com.dacs.backend.model.entity.Paciente> pacientesMap = pacientes.stream()
+                    .collect(Collectors.toMap(com.dacs.backend.model.entity.Paciente::getId, pc -> pc));
+
+            for (int i = 0; i < entidades.size(); i++) {
+                var entidad = entidades.get(i);
+                var dto = dtos.get(i);
+                if (entidad.getPaciente() != null && entidad.getPaciente().getId() != null) {
+                    var pacienteEntity = pacientesMap.get(entidad.getPaciente().getId());
+                    if (pacienteEntity != null) {
+                        var pacienteDto = modelMapper.map(pacienteEntity, PacienteDTO.class);
+                        dto.setPaciente(pacienteDto);
+                    }
+                }
+            }
+        }
+
+        PageResponse<CirugiaDTO.Response> resp = new PageResponse<>();
+        resp.setContent(dtos);
+        resp.setNumber(p.getNumber());
+        resp.setSize(p.getSize());
+        resp.setTotalElements(p.getTotalElements());
+        resp.setTotalPages(p.getTotalPages());
+        return resp;
     }
 }

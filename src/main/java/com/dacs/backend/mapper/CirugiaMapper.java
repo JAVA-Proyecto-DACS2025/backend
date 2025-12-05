@@ -4,8 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.modelmapper.ModelMapper;
 
-import com.dacs.backend.dto.CirugiaRequestDto;
-import com.dacs.backend.dto.CirugiaResponseDTO;
+import com.dacs.backend.dto.CirugiaDTO;
 import com.dacs.backend.dto.PacienteDTO;
 import com.dacs.backend.dto.QuirofanoDto;
 import com.dacs.backend.model.entity.Cirugia;
@@ -26,7 +25,7 @@ public class CirugiaMapper {
     @Autowired
     private QuirofanoRepository quirofanoRepository;
 
-    public Cirugia toEntity(CirugiaRequestDto dto) {
+    public Cirugia toEntity(CirugiaDTO.Create dto) {
         Cirugia entity = new Cirugia();
         // mapear campos simples
         entity.setServicio(dto.getServicio());
@@ -50,8 +49,8 @@ public class CirugiaMapper {
         return entity;
     }
 
-    public CirugiaResponseDTO toResponseDto(Cirugia entity) {
-        CirugiaResponseDTO dto = modelMapper.map(entity, CirugiaResponseDTO.class);
+    public CirugiaDTO.Response toResponseDto(Cirugia entity) {
+        CirugiaDTO.Response dto = modelMapper.map(entity, CirugiaDTO.Response.class);
         if (entity.getPaciente() != null) {
             PacienteDTO pDto = modelMapper.map(entity.getPaciente(), PacienteDTO.class);
             dto.setPaciente(pDto);
