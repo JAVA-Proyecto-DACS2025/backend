@@ -10,43 +10,51 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dacs.backend.dto.PacienteDTO;
+import com.dacs.backend.dto.PageResponse;
 import com.dacs.backend.model.entity.Paciente;
 import com.dacs.backend.service.PacienteService;
-import java.util.stream.Collectors;
-import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping(value = "/pacient")
 public class PacienteController {
 
-	@Autowired
-	private PacienteService pacienteService;
+    @Autowired
+    private PacienteService pacienteService;
 
-	@Autowired
-	private ModelMapper modelMapper;
-
-        @GetMapping("")
-        public ResponseEntity<List<PacienteDTO>> getAll(@RequestParam(name = "search", required = false) String search) {
-        List<Paciente> data = pacienteService.getAll();
-        if (search != null && !search.isBlank()) {
-            String s = search.toLowerCase();
-            data = data.stream()
-                .filter(p -> (p.getNombre() != null && p.getNombre().toLowerCase().contains(s))
-                    || (p.getDni() != null && p.getDni().toLowerCase().contains(s)))
-                .collect(Collectors.toList());
-        }
-        List<PacienteDTO> dtoList = data.stream()
-            .map(p -> modelMapper.map(p, PacienteDTO.class))
-            .collect(Collectors.toList());
-        return new ResponseEntity<>(dtoList, HttpStatus.OK);
-        }
+    @Autowired
+    private ModelMapper modelMapper;
 
     @PostMapping("")
-    public ResponseEntity<PacienteDTO> create(@RequestBody PacienteDTO PacienteDTO) {
+    public ResponseEntity<PacienteDTO.Response> create(@RequestBody PacienteDTO.Create PacienteDTO) {
         Paciente paciente = modelMapper.map(PacienteDTO, Paciente.class);
-        PacienteDTO data = modelMapper.map(pacienteService.save(paciente), PacienteDTO.class);
-        return new ResponseEntity<PacienteDTO>(data, HttpStatus.OK);
+        PacienteDTO.Response data = modelMapper.map(pacienteService.save(paciente), PacienteDTO.Response.class);
+        return new ResponseEntity<PacienteDTO.Response>(data, HttpStatus.CREATED);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<PageResponse<PacienteDTO.Response>> getAll(
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "size", defaultValue = "16") Integer size,
+            @RequestParam(name = "search", required = false) String search) {
+        
+        return new ResponseEntity<>(
+            pacienteService.getByPage(page, size, search), 
+            HttpStatus.OK
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+        pacienteService.delete(id);
+        if (!pacienteService.existById(id)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+            
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

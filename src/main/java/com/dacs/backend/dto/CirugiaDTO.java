@@ -15,7 +15,7 @@ public class CirugiaDTO {
         private String estado;
         private String anestesia;
         private String tipo;
-        private PacienteDTO paciente;
+        private PacienteDTO.Response paciente;
         private QuirofanoDto quirofano;
     }
 

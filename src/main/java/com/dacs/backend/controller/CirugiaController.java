@@ -11,7 +11,6 @@ import com.dacs.backend.service.CirugiaService;
 import org.modelmapper.ModelMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.dacs.backend.dto.PageResponse;
-import com.dacs.backend.dto.CirugiaDTO.Response;
 import com.dacs.backend.model.entity.Cirugia;
 import com.dacs.backend.model.entity.Paciente;
 import com.dacs.backend.model.repository.CirugiaRepository;
@@ -88,7 +86,7 @@ public class CirugiaController {
                 if (entidad.getPaciente() != null && entidad.getPaciente().getId() != null) {
                     var pacienteEntity = pacientesMap.get(entidad.getPaciente().getId());
                     if (pacienteEntity != null) {
-                        var pacienteDto = modelMapper.map(pacienteEntity, PacienteDTO.class);
+                        var pacienteDto = modelMapper.map(pacienteEntity, PacienteDTO.Response.class);
                         dto.setPaciente(pacienteDto); // requiere que CirugiaDTO tenga setPaciente(PacienteDto)
                     }
                 }

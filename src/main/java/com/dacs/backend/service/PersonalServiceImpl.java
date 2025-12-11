@@ -4,8 +4,12 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.dacs.backend.dto.PageResponse;
 import com.dacs.backend.dto.PersonalDto;
 import com.dacs.backend.model.entity.Personal;
 import com.dacs.backend.model.repository.PersonalRepository;
@@ -48,11 +52,28 @@ public class PersonalServiceImpl implements PersonalService {
         personalRepository.delete(existingPersonal);
     }
 
-    @Override
-    public List<PersonalDto.Response> searchByNombreOrDni(String param) {
-        List<Personal> personals = personalRepository.findByNombreContainingIgnoreCaseOrDniContainingIgnoreCase(param, param);
-        return personals.stream()
-                .map(p -> modelMapper.map(p, PersonalDto.Response.class))
-                .collect(java.util.stream.Collectors.toList());
-    }
+   @Override
+   public PageResponse<PersonalDto.Response> getAll(int page, int size, String search) {
+       Pageable pageable = PageRequest.of(page, size);
+       Page<Personal> personalPage;
+       
+       if (search != null && !search.trim().isEmpty()) {
+           personalPage = personalRepository.findByNombreContainingIgnoreCase(search, pageable);
+       } else {
+           personalPage = personalRepository.findAll(pageable);
+       }
+       
+       List<PersonalDto.Response> content = personalPage.getContent().stream()
+               .map(personal -> modelMapper.map(personal, PersonalDto.Response.class))
+               .toList();
+       
+       PageResponse<PersonalDto.Response> response = new PageResponse<>();
+       response.setContent(content);
+       response.setTotalElements(personalPage.getTotalElements());
+       response.setTotalPages(personalPage.getTotalPages());
+       response.setNumber(personalPage.getNumber());
+       response.setSize(personalPage.getSize());
+       
+       return response;
+   }
 }

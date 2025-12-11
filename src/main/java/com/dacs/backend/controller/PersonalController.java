@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.hibernate.query.Page;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable; 
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,7 +30,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-
 @RestController
 @RequestMapping(value = "/personal")
 public class PersonalController {
@@ -45,13 +44,14 @@ public class PersonalController {
     private PersonalRepository personalRepository;
 
     @GetMapping("")
-    public PageResponse<PersonalDto.Response> getPage(
+    public PageResponse<PersonalDto.Response> get(
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "size", required = false, defaultValue = "16") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        org.springframework.data.domain.Page<Personal> p = personalRepository.findAll(pageable);
-        
-        // Map entities -> DTOs     //Implementar en un helper
+            @RequestParam(name = "size", required = false, defaultValue = "16") int size,
+            @RequestParam(name = "search", required = false) String search) {
+
+        PageResponse<PersonalDto.Response> p = personalService.getAll(page, size, search);
+
+        // Map entities -> DTOs //Implementar en un helper
         List<PersonalDto.Response> dtos = p.getContent().stream()
                 .map(e -> modelMapper.map(e, PersonalDto.Response.class))
                 .collect(Collectors.toList());
@@ -65,12 +65,12 @@ public class PersonalController {
         return resp;
     }
 
-    @PostMapping("")  
+    @PostMapping("")
     public ResponseEntity<PersonalDto.Response> create(@RequestBody PersonalDto.Create data) {
         PersonalDto.Response out = personalService.create(data);
         return ResponseEntity.status(HttpStatus.CREATED).body(out);
     }
-    
+
     @PutMapping("/{id}")
     public ResponseEntity<PersonalDto.Response> update(@PathVariable Long id, @RequestBody PersonalDto.Update data) {
         PersonalDto.Response out = personalService.update(id, data);
@@ -83,12 +83,12 @@ public class PersonalController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/resumen")
-    public ResponseEntity<List<PersonalDto.Response>> searchByNombreOrDni(@RequestParam String param) {
-        
-        List<PersonalDto.Response> results = personalService.searchByNombreOrDni(param);
+    // @GetMapping("/resumen")
+    // public ResponseEntity<List<PersonalDto.Response>> searchByNombreOrDni(@RequestParam String param) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(results);
-    }
-    
+    //     List<PersonalDto.Response> results = personalService.searchByNombreOrDni(param);
+
+    //     return ResponseEntity.status(HttpStatus.OK).body(results);
+    // }
+
 }

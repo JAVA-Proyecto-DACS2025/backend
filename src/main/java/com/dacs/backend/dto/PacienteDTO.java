@@ -1,16 +1,41 @@
 package com.dacs.backend.dto;
 
+import java.sql.Date;
+
 import lombok.Data;
 
 @Data
 public class PacienteDTO {
 
-    private Long id;
-    private String nombre;
-    private String dni;
-    private String edad;
-    private String altura;
-    private String peso;
-    private String direccion;
-    private String telefono;
+    @Data
+    static public class Create {
+
+        private String nombre;
+        private String apellido;
+        private String dni;
+        private Date fecha_nacimiento;
+        private String altura;
+        private String peso;
+        private String direccion;
+        private String telefono;
+    }
+
+    @Data
+    static public class Update extends Create {
+        private Long id;
+    }
+
+    @Data
+    static public class Response {
+        private Long id;
+        private String nombre;
+        private String apellido;
+        private String dni;
+        private Date fecha_nacimiento;
+        private String altura;
+        private String peso;
+        private String direccion;
+        private String telefono;
+    }
+
 }

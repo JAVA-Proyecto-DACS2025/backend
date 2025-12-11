@@ -52,7 +52,7 @@ public class CirugiaMapper {
     public CirugiaDTO.Response toResponseDto(Cirugia entity) {
         CirugiaDTO.Response dto = modelMapper.map(entity, CirugiaDTO.Response.class);
         if (entity.getPaciente() != null) {
-            PacienteDTO pDto = modelMapper.map(entity.getPaciente(), PacienteDTO.class);
+            PacienteDTO.Response pDto = modelMapper.map(entity.getPaciente(), PacienteDTO.Response.class);
             dto.setPaciente(pDto);
         }
         if (entity.getQuirofano() != null) {

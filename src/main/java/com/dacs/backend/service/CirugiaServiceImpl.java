@@ -237,7 +237,7 @@ public class CirugiaServiceImpl implements CirugiaService {
                 if (entidad.getPaciente() != null && entidad.getPaciente().getId() != null) {
                     var pacienteEntity = pacientesMap.get(entidad.getPaciente().getId());
                     if (pacienteEntity != null) {
-                        var pacienteDto = modelMapper.map(pacienteEntity, PacienteDTO.class);
+                        var pacienteDto = modelMapper.map(pacienteEntity, PacienteDTO.Response.class);
                         dto.setPaciente(pacienteDto);
                     }
                 }

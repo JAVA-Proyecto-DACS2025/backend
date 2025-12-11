@@ -4,10 +4,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.dacs.backend.dto.PacienteDTO;
+import com.dacs.backend.dto.PageResponse;
 import com.dacs.backend.model.entity.Paciente;
 import com.dacs.backend.model.repository.PacienteRepository;
 
@@ -15,6 +20,8 @@ import com.dacs.backend.model.repository.PacienteRepository;
 public class PacienteServiceImpl implements PacienteService {
 
     @Autowired PacienteRepository pacienteRepository;
+
+    @Autowired ModelMapper modelMapper;
 
     @Override
     public Optional<Paciente> getById(Long id) {
@@ -35,6 +42,12 @@ public class PacienteServiceImpl implements PacienteService {
     public List<Paciente> getAll() {
         return pacienteRepository.findAll();
     }
+
+    // @Override
+    // public List<PacienteDTO.Response> getPacientes() {
+    //     List<Paciente> pacientes = pacienteRepository.findAll();
+    //     return pacientes.stream().map(p -> modelMapper.map(p, PacienteDTO.Response.class)).toList();
+    // }
 
     @Override
     public void delete(Long id) {
@@ -58,19 +71,55 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
-    public List<PacienteDTO> getPacientesByIds(List<Long> ids) {
+    public List<PacienteDTO.Response> getPacientesByIds(List<Long> ids) {
         List<Paciente> pacientes = pacienteRepository.findAllById(ids);
-        List<PacienteDTO> pacientesDTO = pacientes.stream().map(p -> {
-            PacienteDTO dto = new PacienteDTO();
+        List<PacienteDTO.Response> pacientesDTO = pacientes.stream().map(p -> {
+            PacienteDTO.Response dto = new PacienteDTO.Response();
             dto.setId(p.getId());
             dto.setNombre(p.getNombre());
             dto.setDni(p.getDni());
-            dto.setEdad((p.getEdad()));
+            dto.setFecha_nacimiento((p.getFecha_nacimiento()));
             dto.setTelefono(p.getTelefono());
             dto.setPeso(p.getPeso());
             dto.setDireccion(p.getDireccion());    
             return dto;
         }).toList();
         return pacientesDTO;
+    }
+
+    // @Override
+    // public List<PacienteDTO.Response> getAll(int page, int size, String search) {
+    //     Pageable pageable = PageRequest.of(page, size);
+    //     List<Paciente> pacientes = pacienteRepository.findAll(pageable).getContent();
+    //     return pacientes.stream()
+    //             .map(p -> modelMapper.map(p, PacienteDTO.Response.class))
+    //             .toList();
+    // }
+
+    @Override
+    public PageResponse<PacienteDTO.Response> getByPage(int page, int size, String search) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Paciente> pacientePage;
+        
+        // Si hay search, filtrar; si no, traer todos
+        if (search != null && !search.isBlank()) {
+            pacientePage = pacienteRepository.findBySearch(search, pageable);
+        } else {
+            pacientePage = pacienteRepository.findAll(pageable);
+        }
+        
+        // Mapear a DTO
+        List<PacienteDTO.Response> content = pacientePage.getContent().stream()
+            .map(p -> modelMapper.map(p, PacienteDTO.Response.class))
+            .toList();
+        
+        // Retornar PageResponse con metadata de paginación
+        PageResponse<PacienteDTO.Response> response = new PageResponse<>();
+        response.setContent(content);
+        response.setTotalElements(pacientePage.getTotalElements());
+        response.setTotalPages(pacientePage.getTotalPages());
+        response.setNumber(page);
+        response.setSize(size);
+        return response;
     }
 }
