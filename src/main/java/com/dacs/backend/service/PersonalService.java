@@ -12,8 +12,6 @@ public interface PersonalService {
 
     void delete(Long id);
 
-    //List<PersonalDto.Response> searchByNombreOrDni(String param);
-
     PageResponse<PersonalDto.Response> getAll(int page, int size, String search);
 
 

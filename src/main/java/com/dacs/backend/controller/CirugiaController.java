@@ -55,23 +55,22 @@ public class CirugiaController {
     @GetMapping("")
     public ResponseEntity<PageResponse<CirugiaDTO.Response>> getByPage(
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "size", required = false, defaultValue = "16") int size) throws Exception {
+            @RequestParam(name = "size", required = false, defaultValue = "16") int size) {
         PageResponse<CirugiaDTO.Response> cirugias = cirugiaService.get(page, size);
         return ResponseEntity.ok(cirugias);
     }
 
     @PostMapping("")
-    public ResponseEntity<CirugiaDTO.Response> create(@RequestBody CirugiaDTO.Request cirugiaRequestDto)
-            throws Exception {
+    public ResponseEntity<CirugiaDTO.Response> create(@RequestBody CirugiaDTO.Request cirugiaRequestDto) {
         CirugiaDTO.Response cirugiaResponse = cirugiaService.create(cirugiaRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(cirugiaResponse);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CirugiaDTO.Response> update(@PathVariable Long id,
-            @RequestBody CirugiaDTO.Request cirugiaDto) throws Exception {
+            @RequestBody CirugiaDTO.Request cirugiaDto) {
         CirugiaDTO.Response response = cirugiaService.update(id, cirugiaDto);
-     System.err.println("Response from update: " + response);
+        System.err.println("Response from update: " + response);
         return ResponseEntity.ok(response);
     }
 
@@ -82,8 +81,7 @@ public class CirugiaController {
     }
 
     @GetMapping("/{id}/equipo-medico")
-    public ResponseEntity<List<MiembroEquipoMedicoDto.Response>> getEquipoMedico(@PathVariable Long id)
-            throws Exception {
+    public ResponseEntity<List<MiembroEquipoMedicoDto.Response>> getEquipoMedico(@PathVariable Long id) {
 
         List<MiembroEquipoMedicoDto.Response> Equipo = cirugiaService.getEquipoMedico(id);
         return ResponseEntity.ok(Equipo);
@@ -91,7 +89,7 @@ public class CirugiaController {
 
     @PostMapping("/{id}/equipo-medico")
     public ResponseEntity<List<MiembroEquipoMedicoDto.Response>> postEquipoMedico(@PathVariable Long id,
-            @RequestBody List<MiembroEquipoMedicoDto.Create> entityEquipoMedico) throws Exception {
+            @RequestBody List<MiembroEquipoMedicoDto.Create> entityEquipoMedico) {
 
         List<MiembroEquipoMedicoDto.Response> resp = cirugiaService.saveEquipoMedico(id, entityEquipoMedico);
         return ResponseEntity.status((HttpStatus.CREATED)).body(resp);
@@ -99,12 +97,12 @@ public class CirugiaController {
 
     @GetMapping("/horarios-disponibles")
     public ResponseEntity<List<LocalDateTime>> getTurnosDisponibles(@RequestParam Integer cantidadProximosDias,
-            @RequestParam Long servicioId) throws Exception {
+            @RequestParam Long servicioId) {
         return ResponseEntity.ok(turnoService.getTurnosDisponibles(servicioId, cantidadProximosDias));
     }
 
     @GetMapping("/servicios")
-    public ResponseEntity<List<ServicioDto>> getServicios() throws Exception {
+    public ResponseEntity<List<ServicioDto>> getServicios() {
         return ResponseEntity.ok(cirugiaService.getServicios());
     }
 

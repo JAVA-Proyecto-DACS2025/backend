@@ -37,11 +37,6 @@ public class PersonalController {
     @Autowired
     private PersonalService personalService;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
-    private PersonalRepository personalRepository;
 
     @GetMapping("")
     public PageResponse<PersonalDto.Response> get(
@@ -49,20 +44,7 @@ public class PersonalController {
             @RequestParam(name = "size", required = false, defaultValue = "16") int size,
             @RequestParam(name = "search", required = false) String search) {
 
-        PageResponse<PersonalDto.Response> p = personalService.getAll(page, size, search);
-
-        // Map entities -> DTOs //Implementar en un helper
-        List<PersonalDto.Response> dtos = p.getContent().stream()
-                .map(e -> modelMapper.map(e, PersonalDto.Response.class))
-                .collect(Collectors.toList());
-
-        PageResponse<PersonalDto.Response> resp = new PageResponse<>();
-        resp.setContent(dtos);
-        resp.setNumber(p.getNumber());
-        resp.setSize(p.getSize());
-        resp.setTotalElements(p.getTotalElements());
-        resp.setTotalPages(p.getTotalPages());
-        return resp;
+        return personalService.getAll(page, size, search);
     }
 
     @PostMapping("")
@@ -82,13 +64,4 @@ public class PersonalController {
         personalService.delete(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-    // @GetMapping("/resumen")
-    // public ResponseEntity<List<PersonalDto.Response>> searchByNombreOrDni(@RequestParam String param) {
-
-    //     List<PersonalDto.Response> results = personalService.searchByNombreOrDni(param);
-
-    //     return ResponseEntity.status(HttpStatus.OK).body(results);
-    // }
-
 }
