@@ -4,7 +4,7 @@
 Microservicio para backend con base de datos postgres
 
 ##Objetivo
-![Texto alternativo](assets/nombre-de-la-imagen.png)
+![Texto alternativo](assets/infraestructura.png)
 
 
 # Levantar en entorno local
