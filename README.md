@@ -1,7 +1,6 @@
----
 # ms-dacs2025-backend
 
-Microservicio para backend con base de datos postgres
+Microservicio para la gestión de agenda de quirófanos. Permite administrar la programación, disponibilidad y reservas de los quirófanos, facilitando la organización de cirugías y el manejo eficiente de recursos hospitalarios. Utiliza una base de datos Postgres para almacenar la información.
 
 ## Objetivo
 ![Texto alternativo](assets/infraestructura.png)
