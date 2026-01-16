@@ -8,7 +8,7 @@ Microservicio para backend con base de datos postgres
 
 
 ## Configuracion
-![ver el pdf](assets/DACS-configuracion-de-infraestructura.pdf)
+[Ver la configuración de infraestructura (PDF)](assets/DACS-configuracion-de-infraestructura.pdf)
 
 
 # Levantar en entorno local
