@@ -27,7 +27,8 @@ import com.dacs.backend.mapper.CirugiaMapper;
 import com.dacs.backend.model.entity.Cirugia;
 import com.dacs.backend.model.entity.EquipoMedico;
 import com.dacs.backend.model.entity.Personal;
-
+import com.dacs.backend.model.entity.Servicio;
+import com.dacs.backend.model.entity.Turno;
 import com.dacs.backend.model.repository.CirugiaRepository;
 import com.dacs.backend.model.repository.EquipoMedicoRepository;
 import com.dacs.backend.model.repository.PacienteRepository;
@@ -56,6 +57,9 @@ public class CirugiaServiceImpl implements CirugiaService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private TurnoService turnoService;
+
     @Override
     public Optional<Cirugia> getById(Long id) {
         return cirugiaRepository.findById(id);
@@ -65,9 +69,20 @@ public class CirugiaServiceImpl implements CirugiaService {
     @Transactional
     public CirugiaDTO.Response createCirugia(CirugiaDTO.Create request) {
         // mapear request -> entidad (resuelve relaciones dentro del mapper)
+        Long servicioId = request.getServicioId();
+        Long quirofanoId = request.getQuirofanoId();
+        LocalDateTime fechaHoraInicio = request.getFecha_hora_inicio();
+        LocalDateTime fechaHoraFin = fechaHoraInicio.plusMinutes(servicioRepository.findById(servicioId).get().getDuracionMinutos()); // suposición
+        Boolean disponibilidad = turnoService.verificarDisponibilidadTurno(quirofanoId, fechaHoraInicio.toLocalDate(), fechaHoraFin.toLocalDate());
+        if (!disponibilidad) {  
+            throw new IllegalArgumentException("No hay turnos disponibles para el quirófano en la fecha y hora solicitadas.");
+        }
         
         Cirugia entity = cirugiaMapper.toEntity(request);
         Cirugia saved = cirugiaRepository.save(entity);
+        
+        turnoService.asignarTurno(saved.getId(), quirofanoId, fechaHoraInicio.toLocalDate(), fechaHoraFin.toLocalDate());
+        
         // mapear entidad -> response DTO
         return cirugiaMapper.toResponseDto(saved);
     }
@@ -205,29 +220,25 @@ public class CirugiaServiceImpl implements CirugiaService {
         return toSave;
     }
 
-   
-
     @Override
-    public PaginationDto<CirugiaDTO.Response> getCirugias(int page, int size, LocalDate fechaInicio, LocalDate fechaFin) {
+    public PaginationDto<CirugiaDTO.Response> getCirugias(int page, int size, LocalDate fechaInicio,
+            LocalDate fechaFin) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Cirugia> p;
 
         if (fechaInicio != null && fechaFin != null) {
             p = cirugiaRepository.findByFecha_hora_inicioBetween(
-                fechaInicio.atStartOfDay(),
-                fechaFin.atTime(23, 59, 59),
-                pageable
-            );
+                    fechaInicio.atStartOfDay(),
+                    fechaFin.atTime(23, 59, 59),
+                    pageable);
         } else if (fechaInicio != null) {
             p = cirugiaRepository.findByFecha_hora_inicioAfter(
-                fechaInicio.atStartOfDay(),
-                pageable
-            );
+                    fechaInicio.atStartOfDay(),
+                    pageable);
         } else if (fechaFin != null) {
             p = cirugiaRepository.findByFecha_hora_inicioBefore(
-                fechaFin.atTime(23, 59, 59),
-                pageable
-            );
+                    fechaFin.atTime(23, 59, 59),
+                    pageable);
         } else {
             p = cirugiaRepository.findAll(pageable);
         }
@@ -312,8 +323,7 @@ public class CirugiaServiceImpl implements CirugiaService {
                 .collect(Collectors.toList());
     }
 
-
-     private List<MiembroEquipoMedicoDto.Response> mapearEquipoMedicoAResponse(List<EquipoMedico> saved) {
+    private List<MiembroEquipoMedicoDto.Response> mapearEquipoMedicoAResponse(List<EquipoMedico> saved) {
         return saved.stream().map(e -> {
             MiembroEquipoMedicoDto.Response dto = modelMapper.map(e, MiembroEquipoMedicoDto.Response.class);
             // asegurar campos explícitos

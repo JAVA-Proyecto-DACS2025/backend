@@ -1,20 +1,11 @@
 package com.dacs.backend.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.hibernate.query.Page;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dacs.backend.dto.MiembroEquipoMedicoDto;
 import com.dacs.backend.dto.PaginationDto;
 import com.dacs.backend.dto.PersonalDto;
-import com.dacs.backend.model.entity.Personal;
-import com.dacs.backend.model.repository.PersonalRepository;
 import com.dacs.backend.service.PersonalService;
 
 import io.micrometer.core.ipc.http.HttpSender.Response;
@@ -26,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
