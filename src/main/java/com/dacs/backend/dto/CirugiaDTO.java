@@ -12,7 +12,7 @@ public class CirugiaDTO {
     static public class Response {
         private Long id;
         private String prioridad;
-        private LocalDateTime fecha_hora_inicio;
+        private LocalDateTime fechaHoraInicio;
         private String estado;
         private String anestesia;
         private String tipo;
@@ -24,7 +24,7 @@ public class CirugiaDTO {
     @Data
     static public class Create {
         private String prioridad;
-        private LocalDateTime fecha_hora_inicio;
+        private LocalDateTime fechaHoraInicio;
         private String estado;
         private String anestesia;
         private String tipo;

@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.dacs.backend.dto.CirugiaDTO;
 import com.dacs.backend.dto.MiembroEquipoMedicoDto;
-import com.dacs.backend.dto.PaginationDto;
+import com.dacs.backend.dto.PaginacionDto;
 import com.dacs.backend.dto.ServicioDto;
 
 public interface CirugiaService extends CommonService<Cirugia> {
@@ -17,7 +17,7 @@ public interface CirugiaService extends CommonService<Cirugia> {
 
     List<MiembroEquipoMedicoDto.Response> getEquipoMedico(Long cirugiaId);
 
-    PaginationDto<CirugiaDTO.Response> getCirugias(int page, int size, LocalDate fechaInicio, LocalDate fechaFin);
+    PaginacionDto<CirugiaDTO.Response> getCirugias(int page, int size, LocalDate fechaInicio, LocalDate fechaFin);
 
     List<ServicioDto> getServicios();
 

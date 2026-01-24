@@ -20,6 +20,23 @@ import java.util.Locale;
 
 @ControllerAdvice
 public class DacsControllerAdvice {
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+		ExceptionResponse exceptionResponse = new ExceptionResponse(
+				HttpStatus.BAD_REQUEST.value(),
+				this.codePrefix + "_" + HttpStatus.BAD_REQUEST.value(),
+				ex.getMessage() != null ? ex.getMessage() : "Argumento ilegal proporcionado");
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
+	}
+
+	@ExceptionHandler(UnsupportedOperationException.class)
+	public ResponseEntity<ExceptionResponse> handleUnsupportedOperationException(UnsupportedOperationException ex, WebRequest request) {
+		ExceptionResponse exceptionResponse = new ExceptionResponse(
+				HttpStatus.NOT_IMPLEMENTED.value(),
+				this.codePrefix + "_" + HttpStatus.NOT_IMPLEMENTED.value(),
+				ex.getMessage() != null ? ex.getMessage() : "Operación no soportada");
+		return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(exceptionResponse);
+	}
 
 	@Autowired
 	protected MessageSource messageSource;
@@ -74,6 +91,13 @@ public class DacsControllerAdvice {
 	}
 
 	protected String getMessage(String exceptionMessage, Object... params) {
-		return this.messageSource.getMessage(exceptionMessage, params, new Locale("es", "AR"));
+		try {
+			if (exceptionMessage == null) {
+				return "Error inesperado (clave de mensaje nula)";
+			}
+			return this.messageSource.getMessage(exceptionMessage, params, new Locale("es", "AR"));
+		} catch (Exception e) {
+			return "Error inesperado (clave de mensaje: '" + exceptionMessage + "')";
+		}
 	}
 }

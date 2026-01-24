@@ -25,7 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.dacs.backend.dto.PaginationDto;
+import com.dacs.backend.dto.PaginacionDto;
 import com.dacs.backend.dto.ServicioDto;
 import com.dacs.backend.mapper.CirugiaMapper;
 import com.dacs.backend.model.entity.Cirugia;
@@ -54,12 +54,12 @@ public class CirugiaController {
     private TurnoService turnoService;
 
     @GetMapping("")
-    public ResponseEntity<PaginationDto<CirugiaDTO.Response>> getByPage(
+    public ResponseEntity<PaginacionDto<CirugiaDTO.Response>> getByPage(
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "20") int size,
             @RequestParam(name = "fechaInicio", required = false) String fechaInicio,
             @RequestParam(name = "fechaFin", required = false) String fechaFin) {
-        PaginationDto<CirugiaDTO.Response> cirugias = cirugiaService.getCirugias(page, size, parseFecha(fechaInicio), parseFecha(fechaFin));
+        PaginacionDto<CirugiaDTO.Response> cirugias = cirugiaService.getCirugias(page, size, parseFecha(fechaInicio), parseFecha(fechaFin));
         return ResponseEntity.ok(cirugias);
     }
 
@@ -104,6 +104,9 @@ public class CirugiaController {
     }
 
     public static LocalDate parseFecha(String fecha) {
+        if (fecha == null || fecha.isEmpty()) {
+            return null;
+        }
         return LocalDate.parse(fecha); // formato ISO: "yyyy-MM-dd"
     }
 }

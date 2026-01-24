@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dacs.backend.dto.CirugiaDTO;
 import com.dacs.backend.dto.MiembroEquipoMedicoDto;
 import com.dacs.backend.dto.PacienteDTO;
-import com.dacs.backend.dto.PaginationDto;
+import com.dacs.backend.dto.PaginacionDto;
 import com.dacs.backend.dto.PersonalDto;
 import com.dacs.backend.dto.ServicioDto;
 import com.dacs.backend.mapper.CirugiaMapper;
@@ -71,7 +71,7 @@ public class CirugiaServiceImpl implements CirugiaService {
         // mapear request -> entidad (resuelve relaciones dentro del mapper)
         Long servicioId = request.getServicioId();
         Long quirofanoId = request.getQuirofanoId();
-        LocalDateTime fechaHoraInicio = request.getFecha_hora_inicio();
+        LocalDateTime fechaHoraInicio = request.getFechaHoraInicio();
         LocalDateTime fechaHoraFin = fechaHoraInicio.plusMinutes(servicioRepository.findById(servicioId).get().getDuracionMinutos()); // suposición
         Boolean disponibilidad = turnoService.verificarDisponibilidadTurno(quirofanoId, fechaHoraInicio.toLocalDate(), fechaHoraFin.toLocalDate());
         if (!disponibilidad) {  
@@ -221,7 +221,7 @@ public class CirugiaServiceImpl implements CirugiaService {
     }
 
     @Override
-    public PaginationDto<CirugiaDTO.Response> getCirugias(int page, int size, LocalDate fechaInicio,
+    public PaginacionDto.Response<CirugiaDTO.Response> getCirugias(int page, int size, LocalDate fechaInicio,
             LocalDate fechaFin) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Cirugia> p;
@@ -250,11 +250,10 @@ public class CirugiaServiceImpl implements CirugiaService {
 
         mapearPacientes(entidades, dtos);
         mapearServicios(entidades, dtos);
-
-        PaginationDto.Response<CirugiaDTO.Response> resp = new PaginationDto.Response<CirugiaDTO.Response>();
+        PaginacionDto.Response<CirugiaDTO.Response> resp = new PaginacionDto.Response<CirugiaDTO.Response>();
         resp.setContenido(dtos);
         resp.setPagina(p.getNumber());
-        resp.setSize(p.getSize());
+        resp.setTamanio(p.getSize());
         resp.setTotalElementos(p.getTotalElements());
         resp.setTotalPaginas(p.getTotalPages());
         return resp;

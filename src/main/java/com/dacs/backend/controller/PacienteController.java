@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dacs.backend.dto.PacienteDTO;
-import com.dacs.backend.dto.PaginationDto;
+import com.dacs.backend.dto.PaginacionDto;
 import com.dacs.backend.service.PacienteService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
-@RequestMapping(value = "/pacient")
+@RequestMapping(value = "/pacientes")
 public class PacienteController {
 
     @Autowired
@@ -31,7 +31,7 @@ public class PacienteController {
     }
 
     @GetMapping("")
-    public ResponseEntity<PaginationDto<PacienteDTO.Response>> getAll(
+    public ResponseEntity<PaginacionDto<PacienteDTO.Response>> getAll(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "size", defaultValue = "16") Integer size,
             @RequestParam(name = "search", required = false) String search) {

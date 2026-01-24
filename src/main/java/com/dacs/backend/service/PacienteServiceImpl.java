@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.dacs.backend.dto.PacienteDTO;
-import com.dacs.backend.dto.PaginationDto;
+import com.dacs.backend.dto.PaginacionDto;
 import com.dacs.backend.model.entity.Paciente;
 import com.dacs.backend.model.repository.PacienteRepository;
 
@@ -88,7 +88,7 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
-    public PaginationDto<PacienteDTO.Response> getByPage(int page, int size, String search) {
+    public PaginacionDto.Response<PacienteDTO.Response> getByPage(int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Paciente> pacientePage;
 
@@ -100,17 +100,18 @@ public class PacienteServiceImpl implements PacienteService {
         }
 
         // Mapear a DTO
-        List<PacienteDTO.Response> content = pacientePage.getContent().stream()
-                .map(p -> modelMapper.map(p, PacienteDTO.Response.class))
-                .toList();
+        List<Paciente> pacientesList = pacientePage.getContent() == null ? java.util.Collections.emptyList() : pacientePage.getContent();
+        List<PacienteDTO.Response> content = pacientesList.stream()
+            .map(p -> modelMapper.map(p, PacienteDTO.Response.class))
+            .toList();
 
         // Retornar PageResponse con metadata de paginación
-        PaginationDto.Response<PacienteDTO.Response> response = new PaginationDto.Response<>();
+        PaginacionDto.Response<PacienteDTO.Response> response = new PaginacionDto.Response<>();
         response.setContenido(content);
         response.setTotalElementos(pacientePage.getTotalElements());
         response.setTotalPaginas(pacientePage.getTotalPages());
         response.setPagina(page);
-        response.setSize(size);
+        response.setTamanio(size);
         return response;
     }
 

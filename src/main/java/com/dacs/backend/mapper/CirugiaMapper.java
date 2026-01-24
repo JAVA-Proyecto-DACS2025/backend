@@ -34,7 +34,7 @@ public class CirugiaMapper {
     public Cirugia toEntity(CirugiaDTO.Create dto) {
         Cirugia entity = new Cirugia();
         entity.setPrioridad(dto.getPrioridad());
-        entity.setFechaHoraInicio(dto.getFecha_hora_inicio());
+        entity.setFechaHoraInicio(dto.getFechaHoraInicio());
         entity.setEstado(dto.getEstado());
         entity.setAnestesia(dto.getAnestesia());
         entity.setTipo(dto.getTipo());
