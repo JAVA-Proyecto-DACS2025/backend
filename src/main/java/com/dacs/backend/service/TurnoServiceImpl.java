@@ -60,20 +60,27 @@ public class TurnoServiceImpl implements TurnoService {
             LocalDateTime fechaHoraFin) {
         List<Turno> turnos = turnoRepository.findAllByFechaHoraInicioBetweenAndQuirofanoIdAndEstado(fechaHoraInicio,
             fechaHoraFin, quirofanoId, "DISPONIBLE");
-        System.err.println("Turnos disponibles encontrados: " + turnos);  
-        if (turnos == null || turnos.isEmpty()) {
+        // Filtrar solo los turnos cuyo fechaHoraInicio sea >= fechaHoraInicio y < fechaHoraFin
+        List<Turno> turnosEnRango = new ArrayList<>();
+        for (Turno t : turnos) {
+            if (!t.getFechaHoraInicio().isBefore(fechaHoraInicio) && t.getFechaHoraInicio().isBefore(fechaHoraFin)) {
+            turnosEnRango.add(t);
+            }
+        }
+        System.err.println("Turnos disponibles encontrados: " + turnosEnRango);  
+        if (turnosEnRango.isEmpty()) {
             throw new IllegalArgumentException(
                 "No hay turnos disponibles para el quirófano en la fecha y hora solicitadas.");
         }
         Cirugia cirugia = cirugiaRepository.findById(cirugiaId)
             .orElseThrow(() -> new IllegalArgumentException("Cirugía no encontrada con ID: " + cirugiaId));
 
-        for (Turno t : turnos) {
+        for (Turno t : turnosEnRango) {
             t.setCirugia(cirugia);
             t.setEstado("ASIGNADO");
         }
-        turnoRepository.saveAll(turnos);
-        return turnos.get(0);
+        turnoRepository.saveAll(turnosEnRango);
+        return turnosEnRango.get(0);
     }
 
     @Override
