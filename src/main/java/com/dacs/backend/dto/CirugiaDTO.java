@@ -1,6 +1,9 @@
 package com.dacs.backend.dto;
 
 import java.time.LocalDateTime;
+
+import com.dacs.backend.model.entity.EstadoCirugia;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +16,7 @@ public class CirugiaDTO {
         private Long id;
         private String prioridad;
         private LocalDateTime fechaHoraInicio;
-        private String estado;
+        private EstadoCirugia estado;
         private String anestesia;
         private String tipo;
         private ServicioDto servicio;
@@ -25,7 +28,7 @@ public class CirugiaDTO {
     static public class Create {
         private String prioridad;
         private LocalDateTime fechaHoraInicio;
-        private String estado;
+        private EstadoCirugia estado;
         private String anestesia;
         private String tipo;
         private Long pacienteId;

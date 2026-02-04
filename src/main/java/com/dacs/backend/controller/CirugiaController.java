@@ -29,6 +29,7 @@ import com.dacs.backend.dto.PaginacionDto;
 import com.dacs.backend.dto.ServicioDto;
 import com.dacs.backend.mapper.CirugiaMapper;
 import com.dacs.backend.model.entity.Cirugia;
+import com.dacs.backend.model.entity.EstadoCirugia;
 import com.dacs.backend.model.entity.Paciente;
 import com.dacs.backend.model.repository.CirugiaRepository;
 import com.dacs.backend.model.repository.PacienteRepository;
@@ -61,8 +62,20 @@ public class CirugiaController {
             @RequestParam(name = "fechaFin", required = false) String fechaFin,
             @RequestParam(name = "estado", required = false) String estado) {
                 System.err.println("tamano: " + tamano);
-        PaginacionDto<CirugiaDTO.Response> cirugias = cirugiaService.getCirugias(pagina, tamano, parseFecha(fechaInicio), parseFecha(fechaFin), estado);
+        EstadoCirugia estadoEnum = parseEstado(estado);
+        PaginacionDto<CirugiaDTO.Response> cirugias = cirugiaService.getCirugias(pagina, tamano, parseFecha(fechaInicio), parseFecha(fechaFin), estadoEnum);
         return ResponseEntity.ok(cirugias);
+    }
+
+    private EstadoCirugia parseEstado(String estado) {
+        if (estado == null || estado.isBlank()) {
+            return null;
+        }
+        try {
+            return EstadoCirugia.valueOf(estado.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @PostMapping("")

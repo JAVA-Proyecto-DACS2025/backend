@@ -26,14 +26,14 @@ import com.dacs.backend.dto.ServicioDto;
 import com.dacs.backend.mapper.CirugiaMapper;
 import com.dacs.backend.model.entity.Cirugia;
 import com.dacs.backend.model.entity.EquipoMedico;
+import com.dacs.backend.model.entity.EstadoCirugia;
 import com.dacs.backend.model.entity.Personal;
-import com.dacs.backend.model.entity.Servicio;
-import com.dacs.backend.model.entity.Turno;
 import com.dacs.backend.model.repository.CirugiaRepository;
 import com.dacs.backend.model.repository.EquipoMedicoRepository;
 import com.dacs.backend.model.repository.PacienteRepository;
 import com.dacs.backend.model.repository.PersonalRepository;
 import com.dacs.backend.model.repository.ServicioRepository;
+import com.dacs.backend.model.repository.TurnoRepository;
 
 @Service
 public class CirugiaServiceImpl implements CirugiaService {
@@ -53,6 +53,9 @@ public class CirugiaServiceImpl implements CirugiaService {
 
     @Autowired
     private ServicioRepository servicioRepository;
+
+    @Autowired
+    private TurnoRepository turnoRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -103,9 +106,17 @@ public class CirugiaServiceImpl implements CirugiaService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         Optional<Cirugia> cirugia = getById(id);
-        cirugiaRepository.delete(cirugia.get());
+        if (cirugia.isPresent()) {
+            // Eliminar turnos asociados primero
+            turnoRepository.deleteByCirugiaId(id);
+            // Eliminar equipo médico asociado
+            equipoMedicoRepository.deleteByCirugiaId(id);
+            // Eliminar la cirugía
+            cirugiaRepository.delete(cirugia.get());
+        }
     }
 
     @Override
@@ -135,7 +146,7 @@ public class CirugiaServiceImpl implements CirugiaService {
         Cirugia cirugia = cirugiaRepository.findById(cirugiaId)
                 .orElseThrow(() -> new IllegalArgumentException("Cirugia no encontrada id=" + cirugiaId));
         //cirugia.setFechaHoraFin(LocalDateTime.now());   AGREGAR CAMPO EN ENTITY SI ES NECESARIO
-        cirugia.setEstado("FINALIZADA");
+        cirugia.setEstado(EstadoCirugia.FINALIZADA);
         Cirugia updated = cirugiaRepository.save(cirugia);
         return cirugiaMapper.toResponseDto(updated);
     }
@@ -237,12 +248,12 @@ public class CirugiaServiceImpl implements CirugiaService {
 
     @Override
     public PaginacionDto.Response<CirugiaDTO.Response> getCirugias(int pagina, int tamaño, LocalDate fechaInicio,
-            LocalDate fechaFin, String estado) {
+            LocalDate fechaFin, EstadoCirugia estado) {
         System.err.println("asdasdasdsa: " + pagina + ", size: " + tamaño);
         Pageable pageable = PageRequest.of(pagina, tamaño);
         Page<Cirugia> p;
 
-        boolean tieneEstado = estado != null && !estado.isBlank();
+        boolean tieneEstado = estado != null;
 
         if (tieneEstado) {
             // Filtrar por estado
